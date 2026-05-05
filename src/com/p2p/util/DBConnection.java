@@ -7,18 +7,21 @@ import javax.servlet.ServletContext;
 
 /**
  * Database Connection Utility class for JDBC operations.
- * This class manages database connections using the singleton pattern.
+ * Uses H2 embedded database (file-based, no separate server install).
  */
 public class DBConnection {
-    
-    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3306/p2p_file_sharing";
-    private static final String USER = "root";
-    private static final String PASSWORD = "password";
-    
+
+    private static final String DRIVER = "org.h2.Driver";
+    private static final String DB_FILE =
+        System.getProperty("user.home").replace("\\", "/") + "/.p2p_data/p2p_db";
+    private static final String URL =
+        "jdbc:h2:file:" + DB_FILE + ";MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;AUTO_RECONNECT=TRUE";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "";
+
     private static DBConnection instance;
     private Connection connection;
-    
+
     private DBConnection() {
         try {
             Class.forName(DRIVER);
@@ -27,39 +30,31 @@ public class DBConnection {
             e.printStackTrace();
         }
     }
-    
-    /**
-     * Creates a DBConnection with custom parameters from ServletContext
-     */
+
     public DBConnection(ServletContext context) {
         try {
             String driver = context.getInitParameter("dbDriver");
             String url = context.getInitParameter("dbURL");
             String user = context.getInitParameter("dbUser");
             String password = context.getInitParameter("dbPassword");
-            
-            Class.forName(driver);
-            this.connection = DriverManager.getConnection(url, user, password);
+
+            Class.forName(driver != null ? driver : DRIVER);
+            this.connection = DriverManager.getConnection(
+                url != null ? url : URL,
+                user != null ? user : USER,
+                password != null ? password : PASSWORD);
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
-    
-    /**
-     * Gets the singleton instance of DBConnection
-     * @return DBConnection instance
-     */
+
     public static synchronized DBConnection getInstance() {
         if (instance == null || !isValidConnection(instance.connection)) {
             instance = new DBConnection();
         }
         return instance;
     }
-    
-    /**
-     * Gets the database connection
-     * @return Connection object
-     */
+
     public Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
@@ -70,12 +65,7 @@ public class DBConnection {
         }
         return connection;
     }
-    
-    /**
-     * Checks if the connection is valid
-     * @param conn Connection to check
-     * @return true if connection is valid, false otherwise
-     */
+
     private static boolean isValidConnection(Connection conn) {
         try {
             return conn != null && !conn.isClosed();
@@ -83,10 +73,7 @@ public class DBConnection {
             return false;
         }
     }
-    
-    /**
-     * Closes the database connection
-     */
+
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -96,10 +83,7 @@ public class DBConnection {
             e.printStackTrace();
         }
     }
-    
-    /**
-     * Resets the singleton instance (useful for testing)
-     */
+
     public static synchronized void resetInstance() {
         if (instance != null) {
             instance.closeConnection();

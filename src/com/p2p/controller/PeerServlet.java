@@ -211,6 +211,28 @@ public class PeerServlet extends HttpServlet {
         listPeers(request, response);
     }
     
+    private void processPeerConnection(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect("controller?action=login");
+            return;
+        }
+
+        int userId = (Integer) session.getAttribute("userId");
+        Peer peer = peerDAO.findPeerByUserId(userId);
+
+        if (peer != null) {
+            peerDAO.updatePeerOnlineStatus(peer.getPeerId(), true);
+            request.setAttribute("success", "Peer connected successfully");
+        } else {
+            request.setAttribute("error", "No peer found for this user. Please register a peer first.");
+        }
+
+        listPeers(request, response);
+    }
+
     private void processPeerDisconnection(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         

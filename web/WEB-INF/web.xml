@@ -96,18 +96,18 @@
     </context-param>
     <context-param>
         <param-name>dbDriver</param-name>
-        <param-value>com.mysql.cj.jdbc.Driver</param-value>
+        <param-value>org.h2.Driver</param-value>
     </context-param>
     <context-param>
         <param-name>dbURL</param-name>
-        <param-value>jdbc:mysql://localhost:3306/p2p_file_sharing</param-value>
+        <param-value>jdbc:h2:file:~/.p2p_data/p2p_db;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;AUTO_RECONNECT=TRUE</param-value>
     </context-param>
     <context-param>
         <param-name>dbUser</param-name>
-        <param-value>root</param-value>
+        <param-value>sa</param-value>
     </context-param>
     <context-param>
         <param-name>dbPassword</param-name>
-        <param-value>password</param-value>
+        <param-value></param-value>
     </context-param>
 </web-app>
