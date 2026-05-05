@@ -5,249 +5,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P File Sharing - Active Peers</title>
+    <title>Active Peers - Study Material Hub</title>
+    <link rel="stylesheet" href="css/modern-style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .navbar h1 {
-            color: #667eea;
-            font-size: 1.5rem;
-        }
-        
-        .nav-links a {
-            color: #333;
-            text-decoration: none;
-            margin-left: 1.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        
-        .nav-links a:hover {
-            background: #667eea;
+        .header-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white;
+            padding: var(--space-2xl) var(--space-lg);
+            margin-bottom: var(--space-2xl);
+            border-radius: 12px;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+
+        .header-section h1 {
+            margin-bottom: var(--space-sm);
         }
-        
-        .page-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
         }
-        
-        .page-header h2 {
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stats {
-            display: flex;
-            gap: 2rem;
-            margin-top: 1rem;
-        }
-        
+
         .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            text-align: center;
         }
-        
-        .stat-item .number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: var(--space-xs);
         }
-        
-        .stat-item .label {
-            color: #666;
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.95;
         }
-        
-        .section {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+        .peers-table {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: var(--space-2xl);
         }
-        
-        .section h3 {
-            color: #333;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #667eea;
+
+        .table-header {
+            background: var(--bg-tertiary);
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border);
         }
-        
-        .peer-table {
+
+        table {
             width: 100%;
             border-collapse: collapse;
         }
-        
-        .peer-table th,
-        .peer-table td {
-            padding: 1rem;
+
+        th, td {
+            padding: var(--space-md);
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border);
         }
-        
-        .peer-table th {
-            background: #f8f9fa;
-            color: #333;
+
+        th {
+            background: var(--bg-tertiary);
             font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
         }
-        
-        .peer-table tr:hover {
-            background: #f8f9fa;
+
+        tr:hover {
+            background: var(--bg-tertiary);
         }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-online {
+            background: #d1fae5;
+            color: #065f46;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 6px;
             font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .status-badge.online {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-badge.offline {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .btn {
+            font-weight: 600;
             display: inline-block;
-            padding: 0.4rem 0.8rem;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
+        }
+
+        .status-offline {
+            background: var(--danger-light);
+            color: var(--danger-text);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 6px;
             font-size: 0.85rem;
-            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-block;
         }
-        
-        .btn:hover {
-            background: #5a6fd6;
-        }
-        
-        .btn-sm {
-            padding: 0.3rem 0.6rem;
-            font-size: 0.8rem;
-        }
-        
-        .btn-success {
-            background: #28a745;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-        }
-        
-        .actions {
+
+        .actions-cell {
             display: flex;
-            gap: 0.5rem;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
         }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+
+        .empty-peers {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: var(--space-sm);
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <h1>🔗 P2P File Sharing</h1>
+        <h1>📚 Study Material Hub</h1>
         <div class="nav-links">
             <a href="controller?action=home">Home</a>
-            <a href="controller?action=files">Files</a>
-            <a href="controller?action=peers" style="background: #667eea; color: white;">Peers</a>
-            <c:if test="${not empty sessionScope.username}">
+            <a href="controller?action=files">Browse Files</a>
+            <a href="controller?action=peers">Active Peers</a>
+            <c:if test="${not empty sessionScope.user}">
                 <a href="controller?action=dashboard">Dashboard</a>
                 <a href="controller?action=logout">Logout</a>
             </c:if>
-            <c:if test="${empty sessionScope.username}">
+            <c:if test="${empty sessionScope.user}">
                 <a href="controller?action=login">Login</a>
             </c:if>
         </div>
     </nav>
-    
+
     <div class="container">
-        <div class="page-header">
-            <h2>🌐 Active Peers</h2>
-            <p style="color: #666;">View and manage peer connections in the network</p>
-            <div class="stats">
+        <div class="header-section">
+            <h1>🌐 Active Peers in Network</h1>
+            <p>Monitor and manage peer connections in the P2P file sharing network</p>
+            <div class="stats-row">
                 <div class="stat-item">
-                    <span class="number">${onlineCount}</span>
-                    <span class="label">Online</span>
+                    <span class="stat-number">🟢 ${onlineCount}</span>
+                    <span class="stat-label">Online Now</span>
                 </div>
                 <div class="stat-item">
-                    <span class="number">${totalCount}</span>
-                    <span class="label">Total Peers</span>
+                    <span class="stat-number">${totalCount}</span>
+                    <span class="stat-label">Total Registered</span>
                 </div>
             </div>
         </div>
-        
+
         <c:if test="${not empty success}">
-            <div class="alert alert-success">${success}</div>
+            <div class="alert alert-success">✓ ${success}</div>
         </c:if>
-        
+
         <c:if test="${not empty error}">
-            <div class="alert alert-error">${error}</div>
+            <div class="alert alert-error">⚠️ ${error}</div>
+        </c:if>
+
+        <!-- Online Peers -->
+        <c:if test="${not empty onlinePeers}">
+            <div style="margin-bottom: var(--space-2xl);">
+                <h3 style="margin-bottom: var(--space-lg);">🟢 Online Peers</h3>
+                <div class="peers-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Peer ID</th>
+                                <th>Name</th>
+                                <th>IP Address</th>
+                                <th>Port</th>
+                                <th>Status</th>
+                                <th>Last Seen</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="peer" items="${onlinePeers}">
+                                <tr>
+                                    <td><code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">${peer.peerId}</code></td>
+                                    <td>${peer.peerName}</td>
+                                    <td>${peer.ipAddress}</td>
+                                    <td>${peer.listeningPort}</td>
+                                    <td><span class="status-online">● Online</span></td>
+                                    <td style="font-size: 0.9rem; color: var(--text-secondary);">${peer.lastSeen}</td>
+                                    <td>
+                                        <a href="peer?action=disconnect&id=${peer.peerId}" class="btn btn-sm btn-danger" onclick="return confirm('Disconnect this peer?')">Disconnect</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </c:if>
+
+        <!-- All Peers -->
+        <c:if test="${not empty allPeers}">
+            <div style="margin-bottom: var(--space-2xl);">
+                <h3 style="margin-bottom: var(--space-lg);">📋 All Peers</h3>
+                <div class="peers-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Peer ID</th>
+                                <th>Name</th>
+                                <th>IP Address</th>
+                                <th>Port</th>
+                                <th>Status</th>
+                                <th>Last Seen</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="peer" items="${allPeers}">
+                                <tr>
+                                    <td><code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">${peer.peerId}</code></td>
+                                    <td>${peer.peerName}</td>
+                                    <td>${peer.ipAddress}</td>
+                                    <td>${peer.listeningPort}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${peer.online}">
+                                                <span class="status-online">● Online</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="status-offline">○ Offline</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td style="font-size: 0.9rem; color: var(--text-secondary);">${peer.lastSeen}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${peer.online}">
+                                                <a href="peer?action=disconnect&id=${peer.peerId}" class="btn btn-sm btn-danger" onclick="return confirm('Disconnect this peer?')">Disconnect</a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="peer?action=connect&id=${peer.peerId}" class="btn btn-sm btn-success">Connect</a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </c:if>
+
+        <!-- Empty State -->
+        <c:if test="${empty onlinePeers and empty allPeers}">
+            <div class="empty-peers">
+                <h3 style="margin-bottom: var(--space-md);">No peers registered yet</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                    Register your first peer to start participating in the P2P network
+                </p>
+                <a href="peer?action=register" class="btn btn-primary">Register New Peer</a>
+            </div>
+        </c:if>
+    </div>
+</body>
+</html>
         </c:if>
         
         <c:if test="${not empty onlinePeers}">

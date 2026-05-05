@@ -5,67 +5,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>College Study Material Hub</title>
+    <title>Study Material Hub - Find & Share College Notes</title>
+    <link rel="stylesheet" href="css/modern-style.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; color: #2d2d2d; }
-
-        .navbar { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); display: flex; justify-content: space-between; align-items: center; }
-        .navbar h1 { color: #667eea; font-size: 1.4rem; }
-        .nav-links a { color: #333; text-decoration: none; margin-left: 1rem; padding: 0.5rem 0.85rem; border-radius: 5px; transition: all 0.3s; font-size: 0.95rem; }
-        .nav-links a:hover { background: #667eea; color: white; }
-        .nav-cta { background: #667eea; color: white !important; }
-
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 4rem 2rem; text-align: center;
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-2xl) 0;
         }
-        .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.1rem; opacity: 0.95; max-width: 640px; margin: 0 auto 1.75rem; }
-        .hero .cta a {
-            background: white; color: #667eea; padding: 0.85rem 1.75rem;
-            border-radius: 8px; text-decoration: none; font-weight: 600;
-            margin: 0 0.4rem; display: inline-block; transition: transform 0.15s;
-        }
-        .hero .cta a:hover { transform: translateY(-2px); }
-        .hero .cta a.outline { background: transparent; color: white; border: 2px solid white; }
 
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-
-        .stats {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem; margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: white; padding: 1.5rem; border-radius: 10px; text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        .stat-card .num { font-size: 2.2rem; font-weight: 700; color: #667eea; }
-        .stat-card .label { color: #888; margin-top: 0.3rem; }
-
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
         .feature {
-            background: white; padding: 1.5rem; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            padding: var(--space-lg);
         }
-        .feature .icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .feature h4 { color: #333; margin-bottom: 0.4rem; }
-        .feature p { color: #666; font-size: 0.9rem; line-height: 1.5; }
 
-        .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .section-title h3 { color: #444; font-size: 1.25rem; }
-        .section-title a { color: #667eea; text-decoration: none; font-size: 0.9rem; }
-
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
-        .file-card {
-            background: white; padding: 1.1rem; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
         }
-        .file-card .name { font-weight: 600; word-break: break-word; margin-bottom: 0.4rem; }
-        .file-card .meta { color: #888; font-size: 0.8rem; margin-bottom: 0.6rem; }
-        .file-card .tag { background: #eef0fa; color: #5568d3; padding: 0.1rem 0.5rem; border-radius: 12px; font-size: 0.7rem; margin-right: 0.25rem; }
-        .file-card .actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
-        .btn-mini { padding: 0.4rem 0.75rem; border-radius: 5px; text-decoration: none; font-size: 0.8rem; background: #667eea; color: white; }
+
+        .feature h4 {
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: var(--space-2xl) 0 var(--space-lg);
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .section-header a {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -73,7 +58,7 @@
         <h1>📚 Study Material Hub</h1>
         <div class="nav-links">
             <a href="controller?action=home">Home</a>
-            <a href="controller?action=files">Browse</a>
+            <a href="controller?action=files">Browse Files</a>
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
                     <a href="controller?action=dashboard">Dashboard</a>
@@ -82,84 +67,128 @@
                 </c:when>
                 <c:otherwise>
                     <a href="controller?action=login">Login</a>
-                    <a href="controller?action=register" class="nav-cta">Register</a>
+                    <a href="controller?action=register" class="cta">Register</a>
                 </c:otherwise>
             </c:choose>
         </div>
     </nav>
 
     <section class="hero">
-        <h2>Your College Study Material, Organized</h2>
-        <p>Find notes, previous year papers, lab manuals and syllabus shared by your peers and faculty — filterable by branch, semester, and subject.</p>
+        <h2>Your College Study Materials, Organized</h2>
+        <p>Discover notes, previous year exams, lab manuals, and syllabi shared by your peers and faculty — searchable by branch, semester, and subject.</p>
         <div class="cta">
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <a href="controller?action=files">Browse Materials</a>
-                    <a href="upload" class="outline">Upload Yours</a>
+                    <a href="controller?action=files" class="btn btn-lg">Browse Materials</a>
+                    <a href="upload" class="btn btn-lg btn-outline">Share Your Notes</a>
                 </c:when>
                 <c:otherwise>
-                    <a href="controller?action=register">Get Started</a>
-                    <a href="controller?action=files" class="outline">Browse Without Account</a>
+                    <a href="controller?action=register" class="btn btn-lg">Get Started Free</a>
+                    <a href="controller?action=files" class="btn btn-lg btn-outline">Browse Files</a>
                 </c:otherwise>
             </c:choose>
         </div>
     </section>
 
     <div class="container">
-        <div class="stats">
-            <div class="stat-card"><div class="num">${totalFiles}</div><div class="label">Materials shared</div></div>
-            <div class="stat-card"><div class="num">📚</div><div class="label">Notes · PYQs · Labs</div></div>
-            <div class="stat-card"><div class="num">8</div><div class="label">Semesters covered</div></div>
-            <div class="stat-card"><div class="num">⭐</div><div class="label">Faculty verified content</div></div>
+        <!-- Stats Section -->
+        <div class="grid grid-4" style="margin: var(--space-2xl) 0;">
+            <div class="stat-card">
+                <div class="stat-number">${totalFiles > 0 ? totalFiles : '100+'}</div>
+                <div class="stat-label">Materials Shared</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">📚</div>
+                <div class="stat-label">Notes, PYQs & More</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Semesters Covered</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">⭐</div>
+                <div class="stat-label">Verified Content</div>
+            </div>
         </div>
 
+        <!-- Features Section -->
         <div class="features">
-            <div class="feature"><div class="icon">🔍</div><h4>Smart filters</h4><p>Filter by branch, semester, subject, and material type. Find exactly what you need in seconds.</p></div>
-            <div class="feature"><div class="icon">▲</div><h4>Upvote helpful materials</h4><p>The most useful notes float to the top. Vote for what helped you so others can find it too.</p></div>
-            <div class="feature"><div class="icon">✓</div><h4>Faculty verified</h4><p>Materials reviewed by faculty get a verified badge — so you know what's reliable.</p></div>
-            <div class="feature"><div class="icon">📤</div><h4>Share what you've got</h4><p>Got great notes? Upload them in one click. Help your juniors and earn upvotes.</p></div>
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <h4>Smart Search & Filters</h4>
+                <p>Filter by branch, semester, subject, and type. Find exactly what you need instantly.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👍</div>
+                <h4>Community Rated</h4>
+                <p>See ratings and reviews from other students. Know which materials are most helpful.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <h4>Faculty Verified</h4>
+                <p>Content reviewed by faculty gets a verified badge for added reliability.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📤</div>
+                <h4>Easy to Share</h4>
+                <p>Upload your notes with just a few clicks and help your entire college community.</p>
+            </div>
         </div>
 
+        <!-- Trending Materials -->
         <c:if test="${not empty trendingFiles}">
-            <div class="section-title"><h3>🔥 Trending materials</h3><a href="controller?action=files&amp;sort=upvotes">view all →</a></div>
-            <div class="file-grid">
+            <div class="section-header">
+                <h3>🔥 Trending Materials</h3>
+                <a href="controller?action=files&amp;sort=upvotes">View All →</a>
+            </div>
+            <div class="grid grid-3">
                 <c:forEach var="f" items="${trendingFiles}">
                     <div class="file-card">
-                        <div class="name">${f.fileName}</div>
-                        <div class="meta">
-                            <c:if test="${not empty f.subject}">${f.subject} · </c:if>
-                            ▲ ${f.upvoteCount} · ⬇ ${f.downloadCount}
+                        <div class="file-header">
+                            <div class="file-name">${f.fileName}</div>
                         </div>
-                        <div>
-                            <c:if test="${not empty f.branch}"><span class="tag">${f.branch}</span></c:if>
-                            <c:if test="${f.semester > 0}"><span class="tag">Sem ${f.semester}</span></c:if>
-                            <span class="tag">${f.materialTypeLabel}</span>
+                        <div class="file-meta">
+                            <c:if test="${not empty f.subject}">${f.subject}</c:if>
+                            <c:if test="${not empty f.subject and not empty f.uploaderName}"> • </c:if>
+                            <c:if test="${not empty f.uploaderName}">by ${f.uploaderName}</c:if>
                         </div>
-                        <div class="actions">
-                            <a class="btn-mini" href="download?id=${f.fileId}">Download</a>
+                        <div class="file-tags">
+                            <c:if test="${not empty f.branch}"><span class="tag badge-primary">${f.branch}</span></c:if>
+                            <c:if test="${f.semester > 0}"><span class="tag badge-primary">Sem ${f.semester}</span></c:if>
+                            <span class="tag badge-warning">${f.materialTypeLabel}</span>
+                        </div>
+                        <div class="file-actions" style="margin-top: auto;">
+                            <a class="btn btn-sm btn-primary" href="download?id=${f.fileId}">📥 Download</a>
                         </div>
                     </div>
                 </c:forEach>
             </div>
         </c:if>
 
+        <!-- Recently Added -->
         <c:if test="${not empty recentFiles}">
-            <div class="section-title"><h3>🆕 Recently added</h3><a href="controller?action=files">view all →</a></div>
-            <div class="file-grid">
+            <div class="section-header" style="margin-top: var(--space-2xl);">
+                <h3>🆕 Recently Added</h3>
+                <a href="controller?action=files">View All →</a>
+            </div>
+            <div class="grid grid-3">
                 <c:forEach var="f" items="${recentFiles}">
                     <div class="file-card">
-                        <div class="name">${f.fileName}</div>
-                        <div class="meta">
-                            <c:if test="${not empty f.subject}">${f.subject} · </c:if>
-                            ${f.formattedFileSize}
+                        <div class="file-header">
+                            <div class="file-name">${f.fileName}</div>
                         </div>
-                        <div>
-                            <c:if test="${not empty f.branch}"><span class="tag">${f.branch}</span></c:if>
-                            <c:if test="${f.semester > 0}"><span class="tag">Sem ${f.semester}</span></c:if>
-                            <span class="tag">${f.materialTypeLabel}</span>
+                        <div class="file-meta">
+                            <c:if test="${not empty f.subject}">${f.subject}</c:if>
+                            <c:if test="${not empty f.subject && f.formattedFileSize ne null}"> • </c:if>
+                            <c:if test="${f.formattedFileSize ne null}">${f.formattedFileSize}</c:if>
                         </div>
-                        <div class="actions">
-                            <a class="btn-mini" href="download?id=${f.fileId}">Download</a>
+                        <div class="file-tags">
+                            <c:if test="${not empty f.branch}"><span class="tag badge-primary">${f.branch}</span></c:if>
+                            <c:if test="${f.semester > 0}"><span class="tag badge-primary">Sem ${f.semester}</span></c:if>
+                            <span class="tag badge-warning">${f.materialTypeLabel}</span>
+                        </div>
+                        <div class="file-actions" style="margin-top: auto;">
+                            <a class="btn btn-sm btn-primary" href="download?id=${f.fileId}">📥 Download</a>
                         </div>
                     </div>
                 </c:forEach>

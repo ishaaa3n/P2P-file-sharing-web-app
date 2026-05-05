@@ -5,72 +5,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Material Hub — Dashboard</title>
+    <title>Dashboard - Study Material Hub</title>
+    <link rel="stylesheet" href="css/modern-style.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; color: #2d2d2d; }
-
-        .navbar { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); display: flex; justify-content: space-between; align-items: center; }
-        .navbar h1 { color: #667eea; font-size: 1.4rem; }
-        .nav-links a { color: #333; text-decoration: none; margin-left: 1rem; padding: 0.5rem 0.85rem; border-radius: 5px; transition: all 0.3s; font-size: 0.95rem; }
-        .nav-links a:hover { background: #667eea; color: white; }
-
-        .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
-
-        .welcome {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 1.75rem 2rem; border-radius: 12px;
-            margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
         }
-        .welcome h2 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-        .welcome p { opacity: 0.9; font-size: 0.95rem; }
-        .welcome .actions a {
-            background: rgba(255,255,255,0.2); color: white; padding: 0.6rem 1.1rem;
-            border-radius: 6px; text-decoration: none; margin-left: 0.5rem;
-            transition: background 0.2s;
-        }
-        .welcome .actions a:hover { background: rgba(255,255,255,0.3); }
-        .role-tag { background: rgba(255,255,255,0.25); padding: 0.15rem 0.55rem; border-radius: 12px; font-size: 0.75rem; margin-left: 0.5rem; }
 
-        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card {
-            background: white; padding: 1.25rem 1.5rem; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-lg);
         }
-        .stat-card .num { font-size: 2rem; font-weight: 700; color: #667eea; }
-        .stat-card .label { color: #888; font-size: 0.85rem; margin-top: 0.25rem; }
 
-        .row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.25rem; }
-        @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
-
-        .panel {
-            background: white; padding: 1.5rem; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        @media (max-width: 1000px) {
+            .dashboard-row { grid-template-columns: 1fr; }
         }
-        .panel h3 { color: #444; font-size: 1.1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .panel h3 a { font-size: 0.85rem; color: #667eea; text-decoration: none; font-weight: normal; }
-        .panel h3 a:hover { text-decoration: underline; }
-
-        .file-list { display: flex; flex-direction: column; gap: 0.6rem; }
-        .file-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.65rem 0.85rem; background: #fafbff; border-radius: 6px;
-            font-size: 0.92rem; border-left: 3px solid #667eea;
-        }
-        .file-item .file-info { flex: 1; min-width: 0; }
-        .file-item .file-name { font-weight: 500; color: #333; word-break: break-word; }
-        .file-item .file-meta { color: #888; font-size: 0.78rem; margin-top: 0.15rem; }
-        .file-item .verified { background: #d4edda; color: #155724; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 0.4rem; }
-        .file-item .actions { display: flex; gap: 0.35rem; }
-        .file-item .btn-mini {
-            padding: 0.3rem 0.65rem; border-radius: 4px; font-size: 0.75rem;
-            text-decoration: none; border: none; cursor: pointer;
-        }
-        .btn-mini-primary { background: #667eea; color: white; }
-        .btn-mini-danger { background: #f8d7da; color: #721c24; }
-
-        .empty-state { color: #888; text-align: center; padding: 1.5rem 1rem; font-size: 0.9rem; }
-        .empty-state a { color: #667eea; text-decoration: none; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -85,66 +38,83 @@
     </nav>
 
     <div class="container">
-        <div class="welcome">
+        <div class="dashboard-welcome">
             <div>
                 <h2>
-                    Welcome, ${sessionScope.user.username}
+                    👋 Welcome, ${sessionScope.user.username}
                     <span class="role-tag">${sessionScope.user.role}</span>
                 </h2>
-                <p>
+                <p style="margin: var(--space-sm) 0 0;">
                     <c:if test="${not empty sessionScope.user.branch}">${sessionScope.user.branch}</c:if>
-                    <c:if test="${sessionScope.user.semester > 0}"> · Sem ${sessionScope.user.semester}</c:if>
+                    <c:if test="${sessionScope.user.semester > 0}"> • Sem ${sessionScope.user.semester}</c:if>
                 </p>
             </div>
-            <div class="actions">
-                <a href="upload">📤 Upload material</a>
-                <a href="controller?action=files">🔍 Browse all</a>
+            <div class="dashboard-actions">
+                <a href="upload">📤 Upload Material</a>
+                <a href="controller?action=files">🔍 Browse Files</a>
             </div>
         </div>
 
-        <div class="stats-row">
-            <div class="stat-card"><div class="num">${userFiles.size()}</div><div class="label">Your uploads</div></div>
-            <div class="stat-card"><div class="num">${totalFiles}</div><div class="label">Total materials</div></div>
+        <!-- Stats -->
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-number">${userFiles.size()}</div>
+                <div class="stat-label">Your Uploads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${totalFiles}</div>
+                <div class="stat-label">Total Materials</div>
+            </div>
             <c:set var="totalDownloads" value="0"/>
             <c:set var="totalUpvotes" value="0"/>
             <c:forEach var="f" items="${userFiles}">
                 <c:set var="totalDownloads" value="${totalDownloads + f.downloadCount}"/>
                 <c:set var="totalUpvotes" value="${totalUpvotes + f.upvoteCount}"/>
             </c:forEach>
-            <div class="stat-card"><div class="num">${totalDownloads}</div><div class="label">Downloads on your files</div></div>
-            <div class="stat-card"><div class="num">${totalUpvotes}</div><div class="label">Upvotes received</div></div>
+            <div class="stat-card">
+                <div class="stat-number">${totalDownloads}</div>
+                <div class="stat-label">Downloads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${totalUpvotes}</div>
+                <div class="stat-label">Upvotes</div>
+            </div>
         </div>
 
-        <div class="row">
-            <div class="panel">
-                <h3>Your uploads <a href="upload">+ upload new</a></h3>
+        <!-- Main Content -->
+        <div class="dashboard-row">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
+                    <h3>📤 Your Uploads</h3>
+                    <a href="upload" class="btn btn-sm btn-primary">+ Upload</a>
+                </div>
+
                 <c:choose>
                     <c:when test="${empty userFiles}">
                         <div class="empty-state">
-                            You haven't shared any material yet.
-                            <br><a href="upload">Upload your first one</a>
+                            <p>No materials shared yet</p>
+                            <a href="upload" class="btn btn-primary" style="margin-top: var(--space-md);">Upload Your First Material</a>
                         </div>
                     </c:when>
                     <c:otherwise>
-                        <div class="file-list">
+                        <div class="list">
                             <c:forEach var="f" items="${userFiles}">
                                 <div class="file-item">
-                                    <div class="file-info">
-                                        <div class="file-name">
+                                    <div class="file-details">
+                                        <div class="file-title">
                                             ${f.fileName}
-                                            <c:if test="${f.verified}"><span class="verified">✓ verified</span></c:if>
+                                            <c:if test="${f.verified}"><span class="badge badge-success">✓ Verified</span></c:if>
                                         </div>
-                                        <div class="file-meta">
-                                            ${f.materialTypeLabel}
-                                            <c:if test="${not empty f.subject}"> · ${f.subject}</c:if>
-                                            <c:if test="${not empty f.branch}"> · ${f.branch}</c:if>
-                                            <c:if test="${f.semester > 0}"> · Sem ${f.semester}</c:if>
-                                            · ⬇ ${f.downloadCount} · ▲ ${f.upvoteCount}
+                                        <div class="file-stats">
+                                            <span>${f.materialTypeLabel}</span>
+                                            <c:if test="${not empty f.subject}"><span>${f.subject}</span></c:if>
+                                            <span>📥 ${f.downloadCount}</span>
+                                            <span>👍 ${f.upvoteCount}</span>
                                         </div>
                                     </div>
-                                    <div class="actions">
-                                        <a class="btn-mini btn-mini-primary" href="download?id=${f.fileId}">Download</a>
-                                        <a class="btn-mini btn-mini-danger" href="controller?action=delete&amp;id=${f.fileId}" onclick="return confirm('Delete this material?')">Delete</a>
+                                    <div class="file-actions">
+                                        <a class="btn btn-sm btn-primary" href="download?id=${f.fileId}">Download</a>
+                                        <a class="btn btn-sm btn-danger" href="controller?action=delete&amp;id=${f.fileId}" onclick="return confirm('Delete this material?')">Delete</a>
                                     </div>
                                 </div>
                             </c:forEach>
@@ -153,29 +123,33 @@
                 </c:choose>
             </div>
 
-            <div class="panel">
-                <h3>🔥 Trending now <a href="controller?action=files&amp;sort=upvotes">view all</a></h3>
+            <div class="card">
+                <h3>🔥 Trending Materials</h3>
                 <c:choose>
                     <c:when test="${empty trendingFiles}">
-                        <div class="empty-state">No materials yet.</div>
+                        <div class="empty-state">
+                            <p>No materials yet</p>
+                        </div>
                     </c:when>
                     <c:otherwise>
-                        <div class="file-list">
-                            <c:forEach var="f" items="${trendingFiles}">
-                                <div class="file-item">
-                                    <div class="file-info">
-                                        <div class="file-name">${f.fileName}</div>
-                                        <div class="file-meta">
-                                            <c:if test="${not empty f.subject}">${f.subject} · </c:if>
-                                            ▲ ${f.upvoteCount} · ⬇ ${f.downloadCount}
+                        <div class="list">
+                            <c:forEach var="f" items="${trendingFiles}" varStatus="loop">
+                                <c:if test="${loop.count <= 5}">
+                                    <div class="file-item" style="border-left-color: var(--accent);">
+                                        <div class="file-details">
+                                            <div class="file-title">${f.fileName}</div>
+                                            <div class="file-stats">
+                                                <span>${f.materialTypeLabel}</span>
+                                                <span>👍 ${f.upvoteCount}</span>
+                                                <span>📥 ${f.downloadCount}</span>
+                                            </div>
                                         </div>
+                                        <a class="btn btn-sm btn-primary" href="download?id=${f.fileId}">Get</a>
                                     </div>
-                                    <div class="actions">
-                                        <a class="btn-mini btn-mini-primary" href="download?id=${f.fileId}">Download</a>
-                                    </div>
-                                </div>
+                                </c:if>
                             </c:forEach>
                         </div>
+                        <a href="controller?action=files&amp;sort=upvotes" style="display: block; text-align: center; margin-top: var(--space-lg); font-weight: 600;">View All →</a>
                     </c:otherwise>
                 </c:choose>
             </div>

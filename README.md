@@ -1,268 +1,226 @@
-# P2P File Sharing Network - Web Application
+# College Study Material Hub
 
-A complete Peer-to-Peer File Sharing Network built with **Java Servlet, JSP, JDBC, and MVC Architecture**.
+A web application where students and faculty share study materials — notes, previous year papers, lab manuals, syllabi, assignments, and reference books — organized by **branch**, **semester**, **subject**, and **material type**.
 
-## 📋 Project Overview
-
-This project demonstrates a web-based P2P file sharing system where users can:
-- Register and login to the system
-- Upload files to share with the network
-- Browse and download files from other peers
-- Register and manage peer connections
-- Track file downloads and peer activity
-
-## 🏗️ Architecture
-
-### MVC Pattern Implementation
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         MVC Architecture                         │
-├─────────────────────────────────────────────────────────────────┤
-│  MODEL          │  VIEW           │  CONTROLLER                  │
-│ ────────────────│─────────────────│────────────────────────────  │
-│ • User          │ • home.jsp      │ • MainControllerServlet     │
-│ • SharedFile    │ • login.jsp     │ • UserServlet               │
-│ • Peer          │ • register.jsp  │ • FileUploadServlet         │
-│ • UserDAO       │ • dashboard.jsp │ • FileDownloadServlet       │
-│ • FileDAO       │ • files.jsp     │ • PeerServlet               │
-│ • PeerDAO       │ • peers.jsp     │                             │
-│ • DBConnection  │                 │                             │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Technology Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | JSP (JavaServer Pages), HTML5, CSS3, JavaScript |
-| **Controller** | Java Servlets (javax.servlet) |
-| **Model** | Java Beans (POJO) |
-| **Data Access** | JDBC (java.sql) |
-| **Database** | MySQL |
-| **Server** | Apache Tomcat 9+ |
-| **Build** | IntelliJ IDEA / Eclipse |
-
-## 📁 Project Structure
-
-```
-P2P-File-Sharing-Web/
-├── src/
-│   └── com/p2p/
-│       ├── controller/
-│       │   ├── MainControllerServlet.java    # Front Controller
-│       │   ├── FileUploadServlet.java        # File upload handling
-│       │   ├── FileDownloadServlet.java      # File download handling
-│       │   └── PeerServlet.java              # Peer management
-│       ├── model/
-│       │   ├── User.java                     # User entity
-│       │   ├── SharedFile.java               # File entity
-│       │   └── Peer.java                     # Peer entity
-│       ├── dao/
-│       │   ├── UserDAO.java                  # User data access
-│       │   ├── FileDAO.java                  # File data access
-│       │   └── PeerDAO.java                  # Peer data access
-│       └── util/
-│           └── DBConnection.java             # JDBC connection utility
-├── web/
-│   ├── WEB-INF/
-│   │   ├── web.xml                           # Servlet configuration
-│   │   └── views/
-│   │       ├── home.jsp                      # Home page
-│   │       ├── login.jsp                     # Login page
-│   │       ├── register.jsp                  # Registration page
-│   │       ├── dashboard.jsp                 # User dashboard
-│   │       ├── files.jsp                     # File browser
-│   │       └── peers.jsp                     # Peer management
-│   └── index.jsp                             # Entry point
-├── database/
-│   └── schema.sql                            # MySQL database schema
-└── README.md
-```
-
-## 🚀 Setup Instructions
-
-### Prerequisites
-
-1. **Java Development Kit (JDK)** 8 or higher
-2. **Apache Tomcat** 9.0 or higher
-3. **MySQL Server** 5.7 or higher
-4. **MySQL JDBC Driver** (mysql-connector-java)
-
-### Step 1: Database Setup
-
-1. Start your MySQL server
-2. Run the database schema script:
-
-```bash
-mysql -u root -p < database/schema.sql
-```
-
-Or manually execute the SQL in `database/schema.sql` using MySQL Workbench or phpMyAdmin.
-
-### Step 2: Configure Database Connection
-
-Update the database credentials in `web/WEB-INF/web.xml`:
-
-```xml
-<context-param>
-    <param-name>dbURL</param-name>
-    <param-value>jdbc:mysql://localhost:3306/p2p_file_sharing</param-value>
-</context-param>
-<context-param>
-    <param-name>dbUser</param-name>
-    <param-value>root</param-value>
-</context-param>
-<context-param>
-    <param-name>dbPassword</param-name>
-    <param-value>your_password</param-value>
-</context-param>
-```
-
-### Step 3: Deploy to Tomcat
-
-1. Copy the project to Tomcat's `webapps` directory
-2. Or use IntelliJ IDEA / Eclipse to deploy directly
-
-### Step 4: Start the Application
-
-1. Start Apache Tomcat
-2. Access the application at: `http://localhost:8080/P2P-File-Sharing-Web/`
-
-## 📖 Usage Guide
-
-### Default Credentials
-
-| Username | Password |
-|----------|----------|
-| admin | admin123 |
-
-### User Registration
-
-1. Click "Register" on the home page
-2. Fill in username, email, and password
-3. Account will be created and you can login
-
-### Uploading Files
-
-1. Login to your account
-2. Go to Dashboard or click "Upload"
-3. Select a file and add description (optional)
-4. Click "Upload" to share the file
-
-### Browsing Files
-
-1. Click "Files" in the navigation
-2. Browse all available files
-3. Use search to find specific files
-4. Click "Download" to download a file
-
-### Managing Peers
-
-1. Click "Peers" in the navigation
-2. View online and offline peers
-3. Register a new peer with your account
-4. Connect/disconnect peers as needed
-
-## 🗄️ Database Schema
-
-### Tables
-
-| Table | Description |
-|-------|-------------|
-| `users` | User accounts and authentication |
-| `shared_files` | Files available for sharing |
-| `peers` | Peer node information |
-| `file_chunks` | File chunk metadata for P2P distribution |
-| `downloads` | Download history tracking |
-
-### Key Relationships
-
-```
-users (1) ─── (many) shared_files
-users (1) ─── (many) peers
-shared_files (1) ─── (many) file_chunks
-peers (1) ─── (many) file_chunks
-shared_files (1) ─── (many) downloads
-users (1) ─── (many) downloads
-peers (1) ─── (many) downloads
-```
-
-## 🔧 Features
-
-### Implemented Features
-
-- ✅ **MVC Architecture** - Clean separation of Model, View, Controller
-- ✅ **Servlet-based Controllers** - Front Controller pattern implementation
-- ✅ **JSP Views** - Dynamic page rendering with JSTL
-- ✅ **JDBC Data Access** - Full CRUD operations with DAO pattern
-- ✅ **User Authentication** - Login/Registration system
-- ✅ **File Upload/Download** - Multipart file handling
-- ✅ **Peer Management** - Register, connect, disconnect peers
-- ✅ **File Search** - Search files by name
-- ✅ **Pagination** - Browse files with pagination
-- ✅ **Session Management** - HTTP session handling
-- ✅ **Responsive UI** - Modern CSS styling
-
-### P2P Features
-
-- ✅ **Chunk-based File Distribution** - Files split into 100KB chunks
-- ✅ **Peer Discovery** - View active peers in the network
-- ✅ **Neighbor Assignment** - Upload/Download neighbor tracking
-- ✅ **Download Tracking** - Track download counts
-
-## 🛠️ Development
-
-### Building from Source
-
-1. Open the project in IntelliJ IDEA or Eclipse
-2. Configure Tomcat server
-3. Add MySQL JDBC driver to classpath
-4. Build and deploy
-
-### Adding MySQL Connector
-
-Download MySQL Connector/J from [MySQL Downloads](https://dev.mysql.com/downloads/connector/j/)
-
-Place the JAR file in:
-- `web/WEB-INF/lib/` directory, or
-- Tomcat's `lib/` directory
-
-## 📝 API Reference
-
-### Servlet Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/controller?action=home` | GET | Home page |
-| `/controller?action=login` | GET/POST | Login page/processing |
-| `/controller?action=register` | GET/POST | Registration page/processing |
-| `/controller?action=dashboard` | GET | User dashboard |
-| `/controller?action=files` | GET | Browse files |
-| `/controller?action=peers` | GET | View peers |
-| `/controller?action=search&q=...` | GET | Search files |
-| `/upload` | GET/POST | File upload page/processing |
-| `/download?id=...` | GET | Download file |
-| `/peer?action=register` | GET/POST | Register peer |
-| `/peer?action=connect&id=...` | GET | Connect peer |
-| `/peer?action=disconnect&id=...` | GET | Disconnect peer |
-
-## 🔒 Security Notes
-
-- Passwords are stored in plain text in this demo (for educational purposes)
-- In production, use password hashing (BCrypt, SHA-256)
-- Implement CSRF protection
-- Add input validation and sanitization
-- Use HTTPS for secure connections
-
-## 📄 License
-
-This project is created for educational purposes as a college project demonstrating Servlet, JSP, JDBC, and MVC patterns.
-
-## 👨‍💻 Author
-
-College Java Project - P2P File Sharing Network
+Built with **Java Servlets, JSP, JDBC, and an embedded H2 database** following the **MVC architecture**.
 
 ---
 
-**Technologies Used:** Java Servlet | JSP | JDBC | MVC | MySQL | Tomcat
+## Features
+
+### Authentication & Roles
+- User registration with role selection (**Student** or **Faculty**)
+- Profile fields for **Branch** (CSE, IT, ECE, EEE, MECH, CIVIL, AI&DS, Other) and **Semester** (1–8)
+- Session-based login / logout
+- Default seeded users for quick demo:
+  - `admin` / `admin123` (Faculty)
+  - `student1` / `student123` (Student, CSE Sem 5)
+
+### Material Management
+- Upload files up to **100 MB** (multipart upload)
+- Capture metadata on upload: **subject, branch, semester, material type, description**
+- Material types: **Notes, Previous Year Paper (PYQ), Lab Manual, Syllabus, Assignment, Book / Reference**
+- File details persisted: original name, size, MIME type, MD5 hash, upload date, uploader, download count, upvote count
+
+### Browse & Search
+- Full-text search across **file name**, **subject**, and **description**
+- Filter by **branch**, **semester**, **subject** (substring match), and **material type**
+- Sort by: **Newest**, **Most upvoted**, **Most downloaded**
+- Pagination (12 items per page)
+- Combined-criteria search (any filter is optional and composes with others)
+
+### Engagement
+- **Upvote system** — each user can upvote a material once (toggleable). Upvote count is denormalized on the material row for fast sorting.
+- **Faculty verification** — faculty users can mark materials as "verified" and unverify. Verified materials show a green badge.
+- **Owner / faculty deletion** — uploaders can delete their own materials; faculty can delete any material.
+
+### Dashboard
+- Personalized welcome with role and branch / semester
+- Personal stats: **Your Uploads**, **Total Materials**, **Downloads on your files**, **Upvotes received**
+- List of your uploads with quick download / delete actions
+- Sidebar showing **Trending materials** (weighted by upvotes + downloads)
+
+### Public Home
+- Hero section with featured CTAs (different for logged-in vs visitor)
+- Aggregate stats across the platform
+- **Trending Materials** carousel (top 6 by score)
+- **Recently Added** carousel (latest 6 uploads)
+
+### UI / UX
+- Modern responsive design system (custom CSS)
+- **Inter** + **Plus Jakarta Sans** typography
+- Sticky glass-blur navbar
+- Refined card components, soft multi-layer shadows, smooth `cubic-bezier` transitions
+- Tasteful dark-gradient hero with subtle noise texture and pink/indigo glow
+- Mobile-friendly layout with grid breakpoints
+
+### Robustness
+- Custom error page (404 / 500) styled to match the rest of the app
+- Auto-creates the database schema on first startup via a `ServletContextListener`
+- Schema migrations are idempotent (`CREATE / ALTER ... IF NOT EXISTS`)
+- Foreign-key cascades — deleting a user removes their materials and ratings cleanly
+- DB connection guarded by a singleton with auto-reconnect
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | JSP + JSTL, HTML5, CSS3 (custom design system) |
+| **Backend** | Java 17, Servlet 4.0 (`javax.servlet`) |
+| **Data Access** | JDBC, DAO pattern |
+| **Database** | H2 embedded (single file, ~2.5 MB jar — no separate install) |
+| **Web Server** | Apache Tomcat 9 |
+| **Architecture** | MVC + Front Controller |
+
+### Why H2 instead of MySQL
+The project ships with an embedded H2 database. The DB is a single file at `~/.p2p_data/p2p_db.mv.db` and is created automatically on first startup. **No MySQL install or configuration required.** H2 runs in MySQL compatibility mode, so all SQL written in DAOs is portable to MySQL if you need it later.
+
+---
+
+## Project Structure
+
+```
+P2P-File-Sharing-Web/
+├── src/com/p2p/
+│   ├── controller/
+│   │   ├── MainControllerServlet.java   # Front controller (home/login/register/dashboard/files/upvote/verify/delete)
+│   │   ├── FileUploadServlet.java       # Multipart upload handling
+│   │   ├── FileDownloadServlet.java     # File streaming + download counting
+│   │   └── PeerServlet.java             # Legacy (kept for back-compat)
+│   ├── model/
+│   │   ├── User.java                    # role / branch / semester
+│   │   ├── SharedFile.java              # subject / branch / semester / materialType / upvote
+│   │   └── Peer.java                    # Legacy
+│   ├── dao/
+│   │   ├── UserDAO.java
+│   │   ├── FileDAO.java                 # search, filters, upvote, verify, trending
+│   │   └── PeerDAO.java                 # Legacy
+│   └── util/
+│       ├── DBConnection.java            # Singleton JDBC + H2 driver
+│       └── DBInitializer.java           # @WebListener — runs schema-h2.sql on startup
+├── web/
+│   ├── WEB-INF/
+│   │   ├── web.xml                      # Servlet mappings, error pages, context params
+│   │   ├── schema-h2.sql                # Schema + sample users (auto-loaded)
+│   │   ├── lib/                         # javax.servlet-api, h2, jstl jars
+│   │   └── views/
+│   │       ├── home.jsp                 # Public landing
+│   │       ├── login.jsp                # Login form
+│   │       ├── register.jsp             # Registration with role/branch/sem
+│   │       ├── dashboard.jsp            # Logged-in dashboard
+│   │       ├── files.jsp                # Browse + filter + paginate
+│   │       └── upload.jsp               # Upload form with metadata
+│   ├── css/
+│   │   └── modern-style.css             # Design system
+│   ├── index.jsp                        # → redirects to /controller?action=home
+│   └── error.jsp                        # 404 / 500 friendly page
+├── database/
+│   └── schema.sql                       # Original MySQL schema (for reference; H2 schema lives in WEB-INF)
+└── README.md
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- **JDK 17** or higher
+- **Apache Tomcat 9.x** (must be 9, not 10 — this app uses `javax.servlet`)
+
+### Setup (Windows / PowerShell)
+
+1. **Install Tomcat 9** to `C:\tomcat9` (or update paths below).
+
+2. **Set Tomcat env vars** (one-time, persistent):
+   ```powershell
+   [System.Environment]::SetEnvironmentVariable('CATALINA_HOME', 'C:\tomcat9', 'User')
+   [System.Environment]::SetEnvironmentVariable('CATALINA_BASE', 'C:\tomcat9', 'User')
+   ```
+   Then close and reopen PowerShell.
+
+3. **Build & deploy** (run from project root):
+   ```powershell
+   New-Item -ItemType Directory -Force "C:\tomcat9\webapps\p2p"
+   Copy-Item -Recurse -Force ".\web\*" "C:\tomcat9\webapps\p2p\"
+   New-Item -ItemType Directory -Force "C:\tomcat9\webapps\p2p\WEB-INF\classes"
+   javac -d "C:\tomcat9\webapps\p2p\WEB-INF\classes" -cp ".\web\WEB-INF\lib\*" (Get-ChildItem -Recurse -Filter *.java .\src).FullName
+   ```
+
+4. **Start Tomcat**:
+   ```powershell
+   C:\tomcat9\bin\startup.bat
+   ```
+
+5. **Open** http://localhost:8080/p2p/
+
+### Default Logins
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Faculty |
+| `student1` | `student123` | Student |
+
+---
+
+## URL Endpoints
+
+| URL | Method | Purpose |
+|-----|--------|---------|
+| `/` | GET | Redirects to home |
+| `/controller?action=home` | GET | Public landing page |
+| `/controller?action=login` | GET / POST | Login form / submit |
+| `/controller?action=register` | GET / POST | Registration form / submit |
+| `/controller?action=dashboard` | GET | Logged-in dashboard |
+| `/controller?action=files` | GET | Browse with filters (`q`, `branch`, `semester`, `subject`, `type`, `sort`, `page`) |
+| `/controller?action=upvote&id=X` | GET | Toggle upvote (auth required) |
+| `/controller?action=verify&id=X&set=true` | GET | Toggle verified flag (faculty only) |
+| `/controller?action=delete&id=X` | GET | Delete material (uploader or faculty) |
+| `/controller?action=logout` | GET | End session |
+| `/upload` | GET / POST | Upload form / multipart upload |
+| `/download?id=X` | GET | Stream file + increment download counter |
+
+---
+
+## Database Schema
+
+| Table | Purpose |
+|-------|---------|
+| `users` | Accounts, role, branch, semester |
+| `shared_files` | Materials with metadata, hash, counts |
+| `material_ratings` | Upvotes (one row per user-file pair) |
+| `peers`, `file_chunks`, `downloads` | Legacy tables (kept for back-compat, not used in current UI) |
+
+The schema is defined in [`web/WEB-INF/schema-h2.sql`](web/WEB-INF/schema-h2.sql) and loaded automatically by `DBInitializer` on application startup.
+
+---
+
+## Architecture Notes
+
+- **MVC**: clean separation between Models (`com.p2p.model`), Views (`/WEB-INF/views/*.jsp`), and Controllers (`com.p2p.controller`).
+- **Front Controller**: `MainControllerServlet` dispatches all `/controller` requests by `action` parameter.
+- **DAO pattern**: every entity has a dedicated DAO; controllers never write SQL.
+- **Singleton JDBC connection** with reconnection logic.
+- **Auto schema bootstrap** via `ServletContextListener` — no manual database setup step.
+- **Idempotent schema** — uses `CREATE TABLE IF NOT EXISTS` and `ALTER TABLE … ADD COLUMN IF NOT EXISTS` so re-runs are safe.
+
+---
+
+## Possible Extensions
+
+Features that fit naturally on top of the current architecture:
+
+- Password hashing (currently stored in plaintext for academic simplicity)
+- File preview for PDFs and images
+- Comments / discussion thread per material
+- Subject-wise leaderboards
+- "Saved / bookmarked" materials list
+- Email notifications when verified
+- Real chunked downloads with HTTP `Range` headers (the schema already models chunks)
+- Admin panel with user management and reports
+
+---
+
+## License
+
+Educational project. Created as a college mini-project to demonstrate **Servlet / JSP / JDBC / MVC** patterns in a realistic application.

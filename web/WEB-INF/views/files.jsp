@@ -5,104 +5,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Material Hub — Browse</title>
+    <title>Browse Materials - Study Material Hub</title>
+    <link rel="stylesheet" href="css/modern-style.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; color: #2d2d2d; }
-
-        .navbar { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); display: flex; justify-content: space-between; align-items: center; }
-        .navbar h1 { color: #667eea; font-size: 1.4rem; }
-        .nav-links a { color: #333; text-decoration: none; margin-left: 1rem; padding: 0.5rem 0.85rem; border-radius: 5px; transition: all 0.3s; font-size: 0.95rem; }
-        .nav-links a:hover { background: #667eea; color: white; }
-
-        .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
-
-        .filter-card {
-            background: white; padding: 1.25rem 1.5rem; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 1.5rem;
+        .filter-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: var(--space-lg);
+            border-radius: 12px;
+            margin-bottom: var(--space-lg);
         }
-        .filter-card h3 { font-size: 1rem; color: #555; margin-bottom: 0.85rem; }
+
         .filter-grid {
-            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
-            gap: 0.6rem; align-items: end;
-        }
-        .filter-grid label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
-        .filter-grid input, .filter-grid select {
-            width: 100%; padding: 0.55rem; border: 1px solid #ddd; border-radius: 6px;
-            font-size: 0.9rem; font-family: inherit; background: white;
-        }
-        .filter-grid button {
-            background: #667eea; color: white; padding: 0.6rem 1.1rem;
-            border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; height: 38px;
-        }
-        .filter-grid button:hover { background: #5568d3; }
-        .filter-clear { color: #888; font-size: 0.85rem; text-decoration: none; }
-        .filter-clear:hover { color: #333; text-decoration: underline; }
-
-        .results-summary { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-        .file-card {
-            background: white; padding: 1.1rem; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            display: flex; flex-direction: column; gap: 0.6rem;
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .file-card:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08); }
-
-        .file-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
-        .file-name { font-size: 1rem; font-weight: 600; color: #2d2d2d; word-break: break-word; line-height: 1.3; }
-        .verified-badge {
-            background: #d4edda; color: #155724; padding: 0.15rem 0.5rem;
-            border-radius: 4px; font-size: 0.7rem; font-weight: 600; flex-shrink: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
         }
 
-        .meta { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-        .tag {
-            background: #eef0fa; color: #5568d3; padding: 0.15rem 0.55rem;
-            border-radius: 12px; font-size: 0.75rem; font-weight: 500;
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
         }
-        .tag-type { background: #fff3cd; color: #856404; }
-        .tag-branch { background: #d1ecf1; color: #0c5460; }
 
-        .desc { color: #777; font-size: 0.85rem; line-height: 1.4; min-height: 1.2em; }
-
-        .file-footer {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: auto; padding-top: 0.6rem; border-top: 1px solid #f0f0f0;
-            font-size: 0.8rem; color: #888;
+        .filter-group label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
         }
-        .uploader { font-style: italic; }
-        .stats { display: flex; gap: 0.75rem; }
 
-        .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-        .btn-sm {
-            padding: 0.4rem 0.75rem; border: none; border-radius: 5px;
-            font-size: 0.8rem; cursor: pointer; text-decoration: none;
-            display: inline-flex; align-items: center; gap: 0.25rem;
+        .filter-actions {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
         }
-        .btn-download { background: #667eea; color: white; }
-        .btn-download:hover { background: #5568d3; }
-        .btn-upvote { background: #f5f5f5; color: #555; border: 1px solid #e0e0e0; }
-        .btn-upvote:hover { background: #ffe5e5; color: #c82333; border-color: #c82333; }
-        .btn-verify { background: #d4edda; color: #155724; }
-        .btn-verify:hover { background: #c3e6cb; }
 
-        .empty {
-            text-align: center; padding: 3rem 1rem; color: #888;
-            background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        .filter-actions button {
+            flex: 1;
+            min-width: 120px;
         }
-        .empty h3 { color: #555; margin-bottom: 0.5rem; }
 
-        .pagination { display: flex; justify-content: center; gap: 0.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
-        .pagination a, .pagination .current {
-            padding: 0.5rem 0.85rem; border-radius: 5px; text-decoration: none;
-            background: white; color: #667eea; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        .clear-filters {
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: var(--space-md);
         }
-        .pagination .current { background: #667eea; color: white; }
-        .pagination a:hover { background: #eef0fa; }
 
-        @media (max-width: 900px) { .filter-grid { grid-template-columns: 1fr 1fr; } }
+        .results-info {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+            font-weight: 500;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .empty-message h3 {
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+        }
+
+        .pagination-nav {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin: var(--space-2xl) 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-nav a, .pagination-nav .current {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 6px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .pagination-nav a {
+            background: var(--bg-primary);
+            color: var(--primary);
+        }
+
+        .pagination-nav a:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .pagination-nav .current {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -114,7 +115,7 @@
                 <a href="controller?action=dashboard">Dashboard</a>
                 <a href="upload">Upload</a>
             </c:if>
-            <a href="controller?action=files">Browse</a>
+            <a href="controller?action=files">Browse Files</a>
             <c:choose>
                 <c:when test="${not empty sessionScope.user}"><a href="controller?action=logout">Logout</a></c:when>
                 <c:otherwise><a href="controller?action=login">Login</a></c:otherwise>
@@ -123,29 +124,32 @@
     </nav>
 
     <div class="container">
-        <div class="filter-card">
-            <h3>Find materials</h3>
+        <!-- Search & Filters -->
+        <div class="filter-section">
+            <h3 style="margin-bottom: var(--space-lg);">🔍 Find Materials</h3>
             <form action="controller" method="get" class="filter-grid">
                 <input type="hidden" name="action" value="files">
-                <div>
+                
+                <div class="filter-group" style="grid-column: span 2;">
                     <label>Search</label>
-                    <input type="text" name="q" value="${q}" placeholder="Name, subject or description...">
+                    <input type="text" name="q" value="${q}" placeholder="File name, subject...">
                 </div>
-                <div>
+                
+                <div class="filter-group">
                     <label>Branch</label>
                     <select name="branch">
-                        <option value="">All</option>
-                        <option value="CSE"   <c:if test="${branch == 'CSE'}">selected</c:if>>CSE</option>
-                        <option value="IT"    <c:if test="${branch == 'IT'}">selected</c:if>>IT</option>
-                        <option value="ECE"   <c:if test="${branch == 'ECE'}">selected</c:if>>ECE</option>
-                        <option value="EEE"   <c:if test="${branch == 'EEE'}">selected</c:if>>EEE</option>
-                        <option value="MECH"  <c:if test="${branch == 'MECH'}">selected</c:if>>MECH</option>
+                        <option value="">All Branches</option>
+                        <option value="CSE" <c:if test="${branch == 'CSE'}">selected</c:if>>CSE</option>
+                        <option value="IT" <c:if test="${branch == 'IT'}">selected</c:if>>IT</option>
+                        <option value="ECE" <c:if test="${branch == 'ECE'}">selected</c:if>>ECE</option>
+                        <option value="EEE" <c:if test="${branch == 'EEE'}">selected</c:if>>EEE</option>
+                        <option value="MECH" <c:if test="${branch == 'MECH'}">selected</c:if>>MECH</option>
                         <option value="CIVIL" <c:if test="${branch == 'CIVIL'}">selected</c:if>>CIVIL</option>
-                        <option value="AIDS"  <c:if test="${branch == 'AIDS'}">selected</c:if>>AI &amp; DS</option>
-                        <option value="OTHER" <c:if test="${branch == 'OTHER'}">selected</c:if>>Other</option>
+                        <option value="AIDS" <c:if test="${branch == 'AIDS'}">selected</c:if>>AI & DS</option>
                     </select>
                 </div>
-                <div>
+                
+                <div class="filter-group">
                     <label>Semester</label>
                     <select name="semester">
                         <option value="">All</option>
@@ -154,114 +158,126 @@
                         </c:forEach>
                     </select>
                 </div>
-                <div>
-                    <label>Subject</label>
-                    <input type="text" name="subject" value="${subject}" placeholder="e.g. OS">
-                </div>
-                <div>
+                
+                <div class="filter-group">
                     <label>Type</label>
                     <select name="type">
-                        <option value="">All</option>
-                        <option value="notes"      <c:if test="${type == 'notes'}">selected</c:if>>Notes</option>
-                        <option value="pyq"        <c:if test="${type == 'pyq'}">selected</c:if>>PYQ</option>
-                        <option value="lab"        <c:if test="${type == 'lab'}">selected</c:if>>Lab</option>
-                        <option value="syllabus"   <c:if test="${type == 'syllabus'}">selected</c:if>>Syllabus</option>
+                        <option value="">All Types</option>
+                        <option value="notes" <c:if test="${type == 'notes'}">selected</c:if>>Notes</option>
+                        <option value="pyq" <c:if test="${type == 'pyq'}">selected</c:if>>Previous Papers</option>
+                        <option value="lab" <c:if test="${type == 'lab'}">selected</c:if>>Lab Manual</option>
+                        <option value="syllabus" <c:if test="${type == 'syllabus'}">selected</c:if>>Syllabus</option>
                         <option value="assignment" <c:if test="${type == 'assignment'}">selected</c:if>>Assignment</option>
-                        <option value="book"       <c:if test="${type == 'book'}">selected</c:if>>Book</option>
+                        <option value="book" <c:if test="${type == 'book'}">selected</c:if>>Book</option>
                     </select>
                 </div>
-                <div>
-                    <label>Sort</label>
+                
+                <div class="filter-group">
+                    <label>Sort By</label>
                     <select name="sort">
                         <option value="">Newest</option>
-                        <option value="upvotes"   <c:if test="${sort == 'upvotes'}">selected</c:if>>Most upvoted</option>
-                        <option value="downloads" <c:if test="${sort == 'downloads'}">selected</c:if>>Most downloaded</option>
+                        <option value="upvotes" <c:if test="${sort == 'upvotes'}">selected</c:if>>Most Liked</option>
+                        <option value="downloads" <c:if test="${sort == 'downloads'}">selected</c:if>>Most Downloaded</option>
                     </select>
                 </div>
-                <div>
-                    <button type="submit">Apply</button>
+                
+                <div style="display: flex; gap: var(--space-sm); grid-column: span 2;">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <c:if test="${not empty q or not empty branch or (semester != null and semester > 0) or not empty type or not empty sort}">
+                        <a href="controller?action=files" class="btn btn-secondary">Clear</a>
+                    </c:if>
                 </div>
             </form>
-            <c:if test="${not empty q or not empty branch or (semester != null and semester > 0) or not empty subject or not empty type or not empty sort}">
-                <div style="margin-top: 0.6rem;"><a href="controller?action=files" class="filter-clear">× clear filters</a></div>
-            </c:if>
         </div>
 
-        <div class="results-summary">
+        <!-- Results Summary -->
+        <div class="results-info">
             <c:choose>
-                <c:when test="${totalResults > 0}">Showing ${files.size()} of <strong>${totalResults}</strong> material<c:if test="${totalResults != 1}">s</c:if></c:when>
-                <c:otherwise>No materials found</c:otherwise>
+                <c:when test="${totalResults > 0}">
+                    📊 Showing <strong>${files.size()}</strong> of <strong>${totalResults}</strong> material<c:if test="${totalResults != 1}">s</c:if>
+                </c:when>
+                <c:otherwise>
+                    No materials found
+                </c:otherwise>
             </c:choose>
         </div>
 
+        <!-- Files Grid -->
         <c:choose>
             <c:when test="${empty files}">
-                <div class="empty">
-                    <h3>Nothing here yet</h3>
-                    <p>Try adjusting your filters, or
-                        <c:if test="${not empty sessionScope.user}"><a href="upload">upload the first material</a>.</c:if>
-                        <c:if test="${empty sessionScope.user}"><a href="controller?action=register">sign up to share materials</a>.</c:if>
+                <div class="empty-message">
+                    <h3>No materials found</h3>
+                    <p>
+                        <c:if test="${not empty q or not empty branch or not empty type}">
+                            Try adjusting your filters or search terms
+                        </c:if>
+                        <c:if test="${empty q and empty branch and empty type}">
+                            <c:if test="${not empty sessionScope.user}">
+                                <a href="upload">Be the first to upload!</a>
+                            </c:if>
+                            <c:if test="${empty sessionScope.user}">
+                                <a href="controller?action=register">Sign up to start sharing</a>
+                            </c:if>
+                        </c:if>
                     </p>
                 </div>
             </c:when>
             <c:otherwise>
-                <div class="grid">
+                <div class="grid grid-3">
                     <c:forEach var="f" items="${files}">
                         <div class="file-card">
                             <div class="file-header">
-                                <div class="file-name">${f.fileName}</div>
-                                <c:if test="${f.verified}"><span class="verified-badge">✓ verified</span></c:if>
+                                <span class="file-name">${f.fileName}</span>
+                                <c:if test="${f.verified}"><span class="badge badge-success">✓</span></c:if>
                             </div>
 
-                            <div class="meta">
-                                <c:if test="${not empty f.subject}"><span class="tag">${f.subject}</span></c:if>
-                                <c:if test="${not empty f.branch}"><span class="tag tag-branch">${f.branch}</span></c:if>
-                                <c:if test="${f.semester > 0}"><span class="tag tag-branch">Sem ${f.semester}</span></c:if>
-                                <span class="tag tag-type">${f.materialTypeLabel}</span>
+                            <div class="file-meta">
+                                <c:if test="${not empty f.subject}">${f.subject}</c:if>
+                                <c:if test="${not empty f.subject and (not empty f.branch or f.semester > 0)}"> • </c:if>
+                                <c:if test="${not empty f.branch}">${f.branch}</c:if>
+                                <c:if test="${f.semester > 0}"> S${f.semester}</c:if>
                             </div>
 
-                            <c:if test="${not empty f.description}"><div class="desc">${f.description}</div></c:if>
-
-                            <div class="file-footer">
-                                <div class="uploader">by ${empty f.uploaderName ? 'unknown' : f.uploaderName}</div>
-                                <div class="stats">
-                                    <span title="Size">${f.formattedFileSize}</span>
-                                    <span title="Downloads">⬇ ${f.downloadCount}</span>
-                                    <span title="Upvotes">▲ ${f.upvoteCount}</span>
-                                </div>
+                            <div class="file-tags">
+                                <span class="tag badge-warning">${f.materialTypeLabel}</span>
+                                <span class="tag badge-primary" title="File size">${f.formattedFileSize}</span>
                             </div>
 
-                            <div class="actions">
-                                <a class="btn-sm btn-download" href="download?id=${f.fileId}">Download</a>
+                            <c:if test="${not empty f.description}">
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: var(--space-sm) 0; line-height: 1.5;">
+                                    ${f.description}
+                                </p>
+                            </c:if>
+
+                            <div style="font-size: 0.8rem; color: var(--text-tertiary); display: flex; justify-content: space-between; margin: var(--space-md) 0;">
+                                <span>by ${empty f.uploaderName ? 'unknown' : f.uploaderName}</span>
+                                <span>📥 ${f.downloadCount} • 👍 ${f.upvoteCount}</span>
+                            </div>
+
+                            <div class="file-actions">
+                                <a class="btn btn-sm btn-primary" href="download?id=${f.fileId}">📥 Download</a>
                                 <c:if test="${not empty sessionScope.user}">
-                                    <a class="btn-sm btn-upvote" href="controller?action=upvote&amp;id=${f.fileId}&amp;back=controller%3Faction%3Dfiles">▲ Upvote</a>
-                                    <c:if test="${sessionScope.isFaculty}">
-                                        <a class="btn-sm btn-verify" href="controller?action=verify&amp;id=${f.fileId}&amp;set=${!f.verified}&amp;back=controller%3Faction%3Dfiles">
-                                            <c:choose>
-                                                <c:when test="${f.verified}">Unverify</c:when>
-                                                <c:otherwise>✓ Verify</c:otherwise>
-                                            </c:choose>
-                                        </a>
-                                    </c:if>
+                                    <a class="btn btn-sm btn-outline" href="controller?action=upvote&amp;id=${f.fileId}&amp;back=controller%3Faction%3Dfiles">👍 Like</a>
                                 </c:if>
                             </div>
                         </div>
                     </c:forEach>
                 </div>
 
+                <!-- Pagination -->
                 <c:if test="${totalPages > 1}">
-                    <div class="pagination">
+                    <div class="pagination-nav">
                         <c:if test="${currentPage > 1}">
-                            <a href="?action=files&amp;page=${currentPage - 1}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;subject=${subject}&amp;type=${type}&amp;sort=${sort}">‹ Prev</a>
+                            <a href="?action=files&amp;page=${currentPage - 1}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;type=${type}&amp;sort=${sort}">← Previous</a>
                         </c:if>
                         <c:forEach var="p" begin="1" end="${totalPages}">
                             <c:choose>
                                 <c:when test="${p == currentPage}"><span class="current">${p}</span></c:when>
-                                <c:otherwise><a href="?action=files&amp;page=${p}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;subject=${subject}&amp;type=${type}&amp;sort=${sort}">${p}</a></c:otherwise>
+                                <c:otherwise><a href="?action=files&amp;page=${p}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;type=${type}&amp;sort=${sort}">${p}</a></c:otherwise>
                             </c:choose>
                         </c:forEach>
                         <c:if test="${currentPage < totalPages}">
-                            <a href="?action=files&amp;page=${currentPage + 1}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;subject=${subject}&amp;type=${type}&amp;sort=${sort}">Next ›</a>
+                            <a href="?action=files&amp;page=${currentPage + 1}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;type=${type}&amp;sort=${sort}">Next →</a>
                         </c:if>
                     </div>
                 </c:if>
