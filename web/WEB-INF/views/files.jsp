@@ -5,286 +5,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P File Sharing - Browse Files</title>
+    <title>Study Material Hub — Browse</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; color: #2d2d2d; }
+
+        .navbar { background: white; padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { color: #667eea; font-size: 1.4rem; }
+        .nav-links a { color: #333; text-decoration: none; margin-left: 1rem; padding: 0.5rem 0.85rem; border-radius: 5px; transition: all 0.3s; font-size: 0.95rem; }
+        .nav-links a:hover { background: #667eea; color: white; }
+
+        .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
+
+        .filter-card {
+            background: white; padding: 1.25rem 1.5rem; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 1.5rem;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+        .filter-card h3 { font-size: 1rem; color: #555; margin-bottom: 0.85rem; }
+        .filter-grid {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 0.6rem; align-items: end;
         }
-        
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .filter-grid label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
+        .filter-grid input, .filter-grid select {
+            width: 100%; padding: 0.55rem; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 0.9rem; font-family: inherit; background: white;
         }
-        
-        .navbar h1 {
-            color: #667eea;
-            font-size: 1.5rem;
+        .filter-grid button {
+            background: #667eea; color: white; padding: 0.6rem 1.1rem;
+            border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; height: 38px;
         }
-        
-        .nav-links a {
-            color: #333;
-            text-decoration: none;
-            margin-left: 1.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        
-        .nav-links a:hover {
-            background: #667eea;
-            color: white;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .page-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .page-header h2 {
-            color: #333;
-        }
-        
-        .search-form {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .search-form input {
-            padding: 0.75rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            width: 250px;
-        }
-        
-        .search-form input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .search-form button {
-            padding: 0.75rem 1.5rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        
-        .search-form button:hover {
-            background: #5a6fd6;
-        }
-        
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
+        .filter-grid button:hover { background: #5568d3; }
+        .filter-clear { color: #888; font-size: 0.85rem; text-decoration: none; }
+        .filter-clear:hover { color: #333; text-decoration: underline; }
+
+        .results-summary { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
         .file-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            background: white; padding: 1.1rem; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex; flex-direction: column; gap: 0.6rem;
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-        
-        .file-card:hover {
-            transform: translateY(-5px);
+        .file-card:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08); }
+
+        .file-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+        .file-name { font-size: 1rem; font-weight: 600; color: #2d2d2d; word-break: break-word; line-height: 1.3; }
+        .verified-badge {
+            background: #d4edda; color: #155724; padding: 0.15rem 0.5rem;
+            border-radius: 4px; font-size: 0.7rem; font-weight: 600; flex-shrink: 0;
         }
-        
-        .file-card h3 {
-            color: #333;
-            margin-bottom: 0.75rem;
-            word-break: break-all;
+
+        .meta { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .tag {
+            background: #eef0fa; color: #5568d3; padding: 0.15rem 0.55rem;
+            border-radius: 12px; font-size: 0.75rem; font-weight: 500;
         }
-        
-        .file-card .file-meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+        .tag-type { background: #fff3cd; color: #856404; }
+        .tag-branch { background: #d1ecf1; color: #0c5460; }
+
+        .desc { color: #777; font-size: 0.85rem; line-height: 1.4; min-height: 1.2em; }
+
+        .file-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: auto; padding-top: 0.6rem; border-top: 1px solid #f0f0f0;
+            font-size: 0.8rem; color: #888;
         }
-        
-        .file-card .file-meta span {
-            margin-right: 1rem;
-        }
-        
-        .file-card .file-desc {
-            color: #888;
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-            max-height: 40px;
-            overflow: hidden;
-        }
-        
-        .file-card .file-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            background: #5a6fd6;
-        }
-        
+        .uploader { font-style: italic; }
+        .stats { display: flex; gap: 0.75rem; }
+
+        .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
         .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem; border: none; border-radius: 5px;
+            font-size: 0.8rem; cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.25rem;
         }
-        
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 2rem;
+        .btn-download { background: #667eea; color: white; }
+        .btn-download:hover { background: #5568d3; }
+        .btn-upvote { background: #f5f5f5; color: #555; border: 1px solid #e0e0e0; }
+        .btn-upvote:hover { background: #ffe5e5; color: #c82333; border-color: #c82333; }
+        .btn-verify { background: #d4edda; color: #155724; }
+        .btn-verify:hover { background: #c3e6cb; }
+
+        .empty {
+            text-align: center; padding: 3rem 1rem; color: #888;
+            background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
-        
-        .pagination a {
-            padding: 0.5rem 1rem;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: all 0.3s;
+        .empty h3 { color: #555; margin-bottom: 0.5rem; }
+
+        .pagination { display: flex; justify-content: center; gap: 0.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .pagination a, .pagination .current {
+            padding: 0.5rem 0.85rem; border-radius: 5px; text-decoration: none;
+            background: white; color: #667eea; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
         }
-        
-        .pagination a:hover,
-        .pagination a.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 4rem;
-            background: white;
-            border-radius: 10px;
-        }
-        
-        .empty-state h3 {
-            color: #333;
-            margin-bottom: 1rem;
-        }
-        
-        .empty-state p {
-            color: #666;
-        }
+        .pagination .current { background: #667eea; color: white; }
+        .pagination a:hover { background: #eef0fa; }
+
+        @media (max-width: 900px) { .filter-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <h1>🔗 P2P File Sharing</h1>
+        <h1>📚 Study Material Hub</h1>
         <div class="nav-links">
             <a href="controller?action=home">Home</a>
-            <a href="controller?action=files" style="background: #667eea; color: white;">Files</a>
-            <a href="controller?action=peers">Peers</a>
-            <c:if test="${not empty sessionScope.username}">
+            <c:if test="${not empty sessionScope.user}">
                 <a href="controller?action=dashboard">Dashboard</a>
-                <a href="controller?action=logout">Logout</a>
+                <a href="upload">Upload</a>
             </c:if>
-            <c:if test="${empty sessionScope.username}">
-                <a href="controller?action=login">Login</a>
-            </c:if>
+            <a href="controller?action=files">Browse</a>
+            <c:choose>
+                <c:when test="${not empty sessionScope.user}"><a href="controller?action=logout">Logout</a></c:when>
+                <c:otherwise><a href="controller?action=login">Login</a></c:otherwise>
+            </c:choose>
         </div>
     </nav>
-    
+
     <div class="container">
-        <div class="page-header">
-            <h2>📁 Browse Files</h2>
-            <form action="controller" method="get" class="search-form">
-                <input type="hidden" name="action" value="search">
-                <input type="text" name="q" placeholder="Search files..." value="${searchQuery}">
-                <button type="submit">Search</button>
-            </form>
-        </div>
-        
-        <c:if test="${not empty files}">
-            <div class="files-grid">
-                <c:forEach var="file" items="${files}">
-                    <div class="file-card">
-                        <h3>📄 ${file.fileName}</h3>
-                        <div class="file-meta">
-                            <span>📊 ${file.formattedFileSize}</span>
-                            <span>🧩 ${file.chunkCount} chunks</span>
-                        </div>
-                        <div class="file-meta">
-                            <span>⬇️ ${file.downloadCount} downloads</span>
-                            <span>📅 ${file.uploadDate}</span>
-                        </div>
-                        <c:if test="${not empty file.description}">
-                            <div class="file-desc">${file.description}</div>
-                        </c:if>
-                        <div class="file-actions">
-                            <a href="download?id=${file.fileId}" class="btn btn-sm">Download</a>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-            
-            <c:if test="${totalPages > 1}">
-                <div class="pagination">
-                    <c:if test="${currentPage > 1}">
-                        <a href="controller?action=files&page=${currentPage - 1}">← Previous</a>
-                    </c:if>
-                    
-                    <c:forEach var="i" begin="1" end="${totalPages}">
-                        <a href="controller?action=files&page=${i}" 
-                           class="${currentPage == i ? 'active' : ''}">${i}</a>
-                    </c:forEach>
-                    
-                    <c:if test="${currentPage < totalPages}">
-                        <a href="controller?action=files&page=${currentPage + 1}">Next →</a>
-                    </c:if>
+        <div class="filter-card">
+            <h3>Find materials</h3>
+            <form action="controller" method="get" class="filter-grid">
+                <input type="hidden" name="action" value="files">
+                <div>
+                    <label>Search</label>
+                    <input type="text" name="q" value="${q}" placeholder="Name, subject or description...">
                 </div>
+                <div>
+                    <label>Branch</label>
+                    <select name="branch">
+                        <option value="">All</option>
+                        <option value="CSE"   <c:if test="${branch == 'CSE'}">selected</c:if>>CSE</option>
+                        <option value="IT"    <c:if test="${branch == 'IT'}">selected</c:if>>IT</option>
+                        <option value="ECE"   <c:if test="${branch == 'ECE'}">selected</c:if>>ECE</option>
+                        <option value="EEE"   <c:if test="${branch == 'EEE'}">selected</c:if>>EEE</option>
+                        <option value="MECH"  <c:if test="${branch == 'MECH'}">selected</c:if>>MECH</option>
+                        <option value="CIVIL" <c:if test="${branch == 'CIVIL'}">selected</c:if>>CIVIL</option>
+                        <option value="AIDS"  <c:if test="${branch == 'AIDS'}">selected</c:if>>AI &amp; DS</option>
+                        <option value="OTHER" <c:if test="${branch == 'OTHER'}">selected</c:if>>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Semester</label>
+                    <select name="semester">
+                        <option value="">All</option>
+                        <c:forEach var="i" begin="1" end="8">
+                            <option value="${i}" <c:if test="${i == semester}">selected</c:if>>Sem ${i}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div>
+                    <label>Subject</label>
+                    <input type="text" name="subject" value="${subject}" placeholder="e.g. OS">
+                </div>
+                <div>
+                    <label>Type</label>
+                    <select name="type">
+                        <option value="">All</option>
+                        <option value="notes"      <c:if test="${type == 'notes'}">selected</c:if>>Notes</option>
+                        <option value="pyq"        <c:if test="${type == 'pyq'}">selected</c:if>>PYQ</option>
+                        <option value="lab"        <c:if test="${type == 'lab'}">selected</c:if>>Lab</option>
+                        <option value="syllabus"   <c:if test="${type == 'syllabus'}">selected</c:if>>Syllabus</option>
+                        <option value="assignment" <c:if test="${type == 'assignment'}">selected</c:if>>Assignment</option>
+                        <option value="book"       <c:if test="${type == 'book'}">selected</c:if>>Book</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Sort</label>
+                    <select name="sort">
+                        <option value="">Newest</option>
+                        <option value="upvotes"   <c:if test="${sort == 'upvotes'}">selected</c:if>>Most upvoted</option>
+                        <option value="downloads" <c:if test="${sort == 'downloads'}">selected</c:if>>Most downloaded</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit">Apply</button>
+                </div>
+            </form>
+            <c:if test="${not empty q or not empty branch or (semester != null and semester > 0) or not empty subject or not empty type or not empty sort}">
+                <div style="margin-top: 0.6rem;"><a href="controller?action=files" class="filter-clear">× clear filters</a></div>
             </c:if>
-        </c:if>
-        
-        <c:if test="${empty files}">
-            <div class="empty-state">
-                <h3>No files available</h3>
-                <p>Be the first to upload a file to the network!</p>
-                <br>
-                <a href="upload" class="btn">Upload File</a>
-            </div>
-        </c:if>
+        </div>
+
+        <div class="results-summary">
+            <c:choose>
+                <c:when test="${totalResults > 0}">Showing ${files.size()} of <strong>${totalResults}</strong> material<c:if test="${totalResults != 1}">s</c:if></c:when>
+                <c:otherwise>No materials found</c:otherwise>
+            </c:choose>
+        </div>
+
+        <c:choose>
+            <c:when test="${empty files}">
+                <div class="empty">
+                    <h3>Nothing here yet</h3>
+                    <p>Try adjusting your filters, or
+                        <c:if test="${not empty sessionScope.user}"><a href="upload">upload the first material</a>.</c:if>
+                        <c:if test="${empty sessionScope.user}"><a href="controller?action=register">sign up to share materials</a>.</c:if>
+                    </p>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="grid">
+                    <c:forEach var="f" items="${files}">
+                        <div class="file-card">
+                            <div class="file-header">
+                                <div class="file-name">${f.fileName}</div>
+                                <c:if test="${f.verified}"><span class="verified-badge">✓ verified</span></c:if>
+                            </div>
+
+                            <div class="meta">
+                                <c:if test="${not empty f.subject}"><span class="tag">${f.subject}</span></c:if>
+                                <c:if test="${not empty f.branch}"><span class="tag tag-branch">${f.branch}</span></c:if>
+                                <c:if test="${f.semester > 0}"><span class="tag tag-branch">Sem ${f.semester}</span></c:if>
+                                <span class="tag tag-type">${f.materialTypeLabel}</span>
+                            </div>
+
+                            <c:if test="${not empty f.description}"><div class="desc">${f.description}</div></c:if>
+
+                            <div class="file-footer">
+                                <div class="uploader">by ${empty f.uploaderName ? 'unknown' : f.uploaderName}</div>
+                                <div class="stats">
+                                    <span title="Size">${f.formattedFileSize}</span>
+                                    <span title="Downloads">⬇ ${f.downloadCount}</span>
+                                    <span title="Upvotes">▲ ${f.upvoteCount}</span>
+                                </div>
+                            </div>
+
+                            <div class="actions">
+                                <a class="btn-sm btn-download" href="download?id=${f.fileId}">Download</a>
+                                <c:if test="${not empty sessionScope.user}">
+                                    <a class="btn-sm btn-upvote" href="controller?action=upvote&amp;id=${f.fileId}&amp;back=controller%3Faction%3Dfiles">▲ Upvote</a>
+                                    <c:if test="${sessionScope.isFaculty}">
+                                        <a class="btn-sm btn-verify" href="controller?action=verify&amp;id=${f.fileId}&amp;set=${!f.verified}&amp;back=controller%3Faction%3Dfiles">
+                                            <c:choose>
+                                                <c:when test="${f.verified}">Unverify</c:when>
+                                                <c:otherwise>✓ Verify</c:otherwise>
+                                            </c:choose>
+                                        </a>
+                                    </c:if>
+                                </c:if>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+
+                <c:if test="${totalPages > 1}">
+                    <div class="pagination">
+                        <c:if test="${currentPage > 1}">
+                            <a href="?action=files&amp;page=${currentPage - 1}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;subject=${subject}&amp;type=${type}&amp;sort=${sort}">‹ Prev</a>
+                        </c:if>
+                        <c:forEach var="p" begin="1" end="${totalPages}">
+                            <c:choose>
+                                <c:when test="${p == currentPage}"><span class="current">${p}</span></c:when>
+                                <c:otherwise><a href="?action=files&amp;page=${p}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;subject=${subject}&amp;type=${type}&amp;sort=${sort}">${p}</a></c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+                        <c:if test="${currentPage < totalPages}">
+                            <a href="?action=files&amp;page=${currentPage + 1}&amp;q=${q}&amp;branch=${branch}&amp;semester=${semester}&amp;subject=${subject}&amp;type=${type}&amp;sort=${sort}">Next ›</a>
+                        </c:if>
+                    </div>
+                </c:if>
+            </c:otherwise>
+        </c:choose>
     </div>
 </body>
 </html>

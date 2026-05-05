@@ -6,312 +6,289 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * File Data Access Object (DAO) for database operations.
- * This class handles all CRUD operations for SharedFile entities.
- */
 public class FileDAO {
-    
-    private static final int DEFAULT_CHUNK_SIZE = 102400; // 100KB chunks
-    
-    /**
-     * Creates a new file entry in the database
-     * @param file SharedFile object to create
-     * @return true if successful, false otherwise
-     */
+
+    private static final int DEFAULT_CHUNK_SIZE = 102400;
+
     public boolean createFile(SharedFile file) {
         String sql = "INSERT INTO shared_files (user_id, file_name, file_path, file_size, " +
-                     "file_type, file_hash, chunk_count, chunk_size, description) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+                     "file_type, file_hash, chunk_count, chunk_size, description, " +
+                     "subject, branch, semester, material_type) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
-            pstmt.setInt(1, file.getUserId());
-            pstmt.setString(2, file.getFileName());
-            pstmt.setString(3, file.getFilePath());
-            pstmt.setLong(4, file.getFileSize());
-            pstmt.setString(5, file.getFileType());
-            pstmt.setString(6, file.getFileHash());
-            pstmt.setInt(7, file.getChunkCount());
-            pstmt.setInt(8, file.getChunkSize());
-            pstmt.setString(9, file.getDescription());
-            
-            int rowsAffected = pstmt.executeUpdate();
-            
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, file.getUserId());
+            ps.setString(2, file.getFileName());
+            ps.setString(3, file.getFilePath());
+            ps.setLong(4, file.getFileSize());
+            ps.setString(5, file.getFileType());
+            ps.setString(6, file.getFileHash());
+            ps.setInt(7, file.getChunkCount());
+            ps.setInt(8, file.getChunkSize());
+            ps.setString(9, file.getDescription());
+            ps.setString(10, file.getSubject());
+            ps.setString(11, file.getBranch());
+            ps.setInt(12, file.getSemester());
+            ps.setString(13, file.getMaterialType() != null ? file.getMaterialType() : SharedFile.TYPE_NOTES);
+
+            int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    file.setFileId(rs.getInt(1));
-                }
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) file.setFileId(rs.getInt(1));
                 return true;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
-    
-    /**
-     * Finds a file by ID
-     * @param fileId File ID
-     * @return SharedFile object or null if not found
-     */
+
     public SharedFile findFileById(int fileId) {
-        String sql = "SELECT * FROM shared_files WHERE file_id = ?";
-        SharedFile file = null;
-        
+        String sql = "SELECT f.*, u.username AS uploader FROM shared_files f " +
+                     "LEFT JOIN users u ON f.user_id = u.user_id WHERE f.file_id = ?";
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, fileId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                file = extractFileFromResultSet(rs);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return file;
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, fileId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return extractFileFromResultSet(rs, true);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
     }
-    
-    /**
-     * Finds files by user ID
-     * @param userId User ID
-     * @return List of SharedFile objects
-     */
+
     public List<SharedFile> findFilesByUserId(int userId) {
         List<SharedFile> files = new ArrayList<>();
-        String sql = "SELECT * FROM shared_files WHERE user_id = ? ORDER BY upload_date DESC";
-        
+        String sql = "SELECT f.*, u.username AS uploader FROM shared_files f " +
+                     "LEFT JOIN users u ON f.user_id = u.user_id " +
+                     "WHERE f.user_id = ? ORDER BY f.upload_date DESC";
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                files.add(extractFileFromResultSet(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) files.add(extractFileFromResultSet(rs, true));
+        } catch (SQLException e) { e.printStackTrace(); }
         return files;
     }
-    
+
     /**
-     * Searches files by name
-     * @param fileName File name or partial name
-     * @return List of matching SharedFile objects
+     * Multi-criteria search. Any null/empty/zero param is ignored.
      */
-    public List<SharedFile> searchFilesByName(String fileName) {
+    public List<SharedFile> searchMaterials(String keyword, String branch, Integer semester,
+                                            String subject, String materialType,
+                                            String sortBy, int offset, int limit) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT f.*, u.username AS uploader FROM shared_files f " +
+            "LEFT JOIN users u ON f.user_id = u.user_id WHERE f.is_available = true ");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (LOWER(f.file_name) LIKE ? OR LOWER(f.subject) LIKE ? OR LOWER(f.description) LIKE ?) ");
+            String like = "%" + keyword.trim().toLowerCase() + "%";
+            params.add(like); params.add(like); params.add(like);
+        }
+        if (branch != null && !branch.trim().isEmpty()) {
+            sql.append("AND LOWER(f.branch) = ? ");
+            params.add(branch.trim().toLowerCase());
+        }
+        if (semester != null && semester > 0) {
+            sql.append("AND f.semester = ? ");
+            params.add(semester);
+        }
+        if (subject != null && !subject.trim().isEmpty()) {
+            sql.append("AND LOWER(f.subject) LIKE ? ");
+            params.add("%" + subject.trim().toLowerCase() + "%");
+        }
+        if (materialType != null && !materialType.trim().isEmpty()) {
+            sql.append("AND f.material_type = ? ");
+            params.add(materialType.trim().toLowerCase());
+        }
+
+        if ("upvotes".equalsIgnoreCase(sortBy)) {
+            sql.append("ORDER BY f.upvote_count DESC, f.upload_date DESC ");
+        } else if ("downloads".equalsIgnoreCase(sortBy)) {
+            sql.append("ORDER BY f.download_count DESC, f.upload_date DESC ");
+        } else {
+            sql.append("ORDER BY f.upload_date DESC ");
+        }
+
+        sql.append("LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
         List<SharedFile> files = new ArrayList<>();
-        String sql = "SELECT * FROM shared_files WHERE file_name LIKE ? AND is_available = true " +
-                     "ORDER BY upload_date DESC";
-        
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, "%" + fileName + "%");
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                files.add(extractFileFromResultSet(rs));
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) files.add(extractFileFromResultSet(rs, true));
+        } catch (SQLException e) { e.printStackTrace(); }
         return files;
     }
-    
-    /**
-     * Gets all available files
-     * @return List of available SharedFile objects
-     */
-    public List<SharedFile> getAllAvailableFiles() {
-        List<SharedFile> files = new ArrayList<>();
-        String sql = "SELECT * FROM shared_files WHERE is_available = true ORDER BY upload_date DESC";
-        
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            while (rs.next()) {
-                files.add(extractFileFromResultSet(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+    public int countMaterials(String keyword, String branch, Integer semester, String subject, String materialType) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM shared_files f WHERE f.is_available = true ");
+        List<Object> params = new ArrayList<>();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (LOWER(f.file_name) LIKE ? OR LOWER(f.subject) LIKE ? OR LOWER(f.description) LIKE ?) ");
+            String like = "%" + keyword.trim().toLowerCase() + "%";
+            params.add(like); params.add(like); params.add(like);
         }
-        return files;
-    }
-    
-    /**
-     * Gets all files with pagination
-     * @param offset Starting position
-     * @param limit Maximum number of results
-     * @return List of SharedFile objects
-     */
-    public List<SharedFile> getFilesWithPagination(int offset, int limit) {
-        List<SharedFile> files = new ArrayList<>();
-        String sql = "SELECT * FROM shared_files WHERE is_available = true " +
-                     "ORDER BY upload_date DESC LIMIT ? OFFSET ?";
-        
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, limit);
-            pstmt.setInt(2, offset);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                files.add(extractFileFromResultSet(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (branch != null && !branch.trim().isEmpty()) {
+            sql.append("AND LOWER(f.branch) = ? ");
+            params.add(branch.trim().toLowerCase());
         }
-        return files;
-    }
-    
-    /**
-     * Updates file information
-     * @param file SharedFile object with updated information
-     * @return true if successful, false otherwise
-     */
-    public boolean updateFile(SharedFile file) {
-        String sql = "UPDATE shared_files SET file_name = ?, file_path = ?, file_size = ?, " +
-                     "file_type = ?, file_hash = ?, chunk_count = ?, chunk_size = ?, " +
-                     "description = ?, is_available = ? WHERE file_id = ?";
-        
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, file.getFileName());
-            pstmt.setString(2, file.getFilePath());
-            pstmt.setLong(3, file.getFileSize());
-            pstmt.setString(4, file.getFileType());
-            pstmt.setString(5, file.getFileHash());
-            pstmt.setInt(6, file.getChunkCount());
-            pstmt.setInt(7, file.getChunkSize());
-            pstmt.setString(8, file.getDescription());
-            pstmt.setBoolean(9, file.isAvailable());
-            pstmt.setInt(10, file.getFileId());
-            
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (semester != null && semester > 0) {
+            sql.append("AND f.semester = ? ");
+            params.add(semester);
         }
-        return false;
-    }
-    
-    /**
-     * Increments download count for a file
-     * @param fileId File ID
-     * @return true if successful, false otherwise
-     */
-    public boolean incrementDownloadCount(int fileId) {
-        String sql = "UPDATE shared_files SET download_count = download_count + 1 WHERE file_id = ?";
-        
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, fileId);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (subject != null && !subject.trim().isEmpty()) {
+            sql.append("AND LOWER(f.subject) LIKE ? ");
+            params.add("%" + subject.trim().toLowerCase() + "%");
         }
-        return false;
-    }
-    
-    /**
-     * Sets file availability status
-     * @param fileId File ID
-     * @param available Availability status
-     * @return true if successful, false otherwise
-     */
-    public boolean setFileAvailability(int fileId, boolean available) {
-        String sql = "UPDATE shared_files SET is_available = ? WHERE file_id = ?";
-        
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setBoolean(1, available);
-            pstmt.setInt(2, fileId);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (materialType != null && !materialType.trim().isEmpty()) {
+            sql.append("AND f.material_type = ? ");
+            params.add(materialType.trim().toLowerCase());
         }
-        return false;
-    }
-    
-    /**
-     * Deletes a file by ID
-     * @param fileId File ID
-     * @return true if successful, false otherwise
-     */
-    public boolean deleteFile(int fileId) {
-        String sql = "DELETE FROM shared_files WHERE file_id = ?";
-        
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, fileId);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    
-    /**
-     * Gets total count of available files
-     * @return Total count
-     */
-    public int getTotalFileCount() {
-        String sql = "SELECT COUNT(*) FROM shared_files WHERE is_available = true";
-        
-        try (Connection conn = DBConnection.getInstance().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
-    
-    /**
-     * Gets files by file type
-     * @param fileType File type/extension
-     * @return List of SharedFile objects
-     */
-    public List<SharedFile> getFilesByType(String fileType) {
+
+    public List<SharedFile> getTrendingMaterials(int limit) {
         List<SharedFile> files = new ArrayList<>();
-        String sql = "SELECT * FROM shared_files WHERE file_type = ? AND is_available = true " +
-                     "ORDER BY upload_date DESC";
-        
+        String sql = "SELECT f.*, u.username AS uploader FROM shared_files f " +
+                     "LEFT JOIN users u ON f.user_id = u.user_id " +
+                     "WHERE f.is_available = true " +
+                     "ORDER BY (f.upvote_count * 2 + f.download_count) DESC, f.upload_date DESC LIMIT ?";
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, fileType);
-            ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                files.add(extractFileFromResultSet(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) files.add(extractFileFromResultSet(rs, true));
+        } catch (SQLException e) { e.printStackTrace(); }
         return files;
     }
-    
+
+    public List<SharedFile> getRecentMaterials(int limit) {
+        return searchMaterials(null, null, null, null, null, null, 0, limit);
+    }
+
+    public boolean incrementDownloadCount(int fileId) {
+        String sql = "UPDATE shared_files SET download_count = download_count + 1 WHERE file_id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, fileId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
     /**
-     * Helper method to extract SharedFile from ResultSet
+     * Toggles a user's upvote on a file. Returns the new total upvote count, or -1 on failure.
      */
-    private SharedFile extractFileFromResultSet(ResultSet rs) throws SQLException {
+    public int toggleUpvote(int fileId, int userId) {
+        try (Connection conn = DBConnection.getInstance().getConnection()) {
+            // Check whether user already upvoted
+            try (PreparedStatement check = conn.prepareStatement(
+                    "SELECT rating_id FROM material_ratings WHERE file_id = ? AND user_id = ?")) {
+                check.setInt(1, fileId);
+                check.setInt(2, userId);
+                ResultSet rs = check.executeQuery();
+                if (rs.next()) {
+                    // Already upvoted -> remove
+                    int ratingId = rs.getInt("rating_id");
+                    try (PreparedStatement del = conn.prepareStatement("DELETE FROM material_ratings WHERE rating_id = ?")) {
+                        del.setInt(1, ratingId);
+                        del.executeUpdate();
+                    }
+                    try (PreparedStatement upd = conn.prepareStatement(
+                            "UPDATE shared_files SET upvote_count = GREATEST(upvote_count - 1, 0) WHERE file_id = ?")) {
+                        upd.setInt(1, fileId);
+                        upd.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement ins = conn.prepareStatement(
+                            "INSERT INTO material_ratings (file_id, user_id, rating_value) VALUES (?, ?, 1)")) {
+                        ins.setInt(1, fileId);
+                        ins.setInt(2, userId);
+                        ins.executeUpdate();
+                    }
+                    try (PreparedStatement upd = conn.prepareStatement(
+                            "UPDATE shared_files SET upvote_count = upvote_count + 1 WHERE file_id = ?")) {
+                        upd.setInt(1, fileId);
+                        upd.executeUpdate();
+                    }
+                }
+            }
+            try (PreparedStatement get = conn.prepareStatement(
+                    "SELECT upvote_count FROM shared_files WHERE file_id = ?")) {
+                get.setInt(1, fileId);
+                ResultSet rs = get.executeQuery();
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return -1;
+    }
+
+    public boolean hasUserUpvoted(int fileId, int userId) {
+        String sql = "SELECT 1 FROM material_ratings WHERE file_id = ? AND user_id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, fileId);
+            ps.setInt(2, userId);
+            return ps.executeQuery().next();
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public boolean setVerified(int fileId, boolean verified) {
+        String sql = "UPDATE shared_files SET is_verified = ? WHERE file_id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, verified);
+            ps.setInt(2, fileId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public boolean deleteFile(int fileId) {
+        String sql = "DELETE FROM shared_files WHERE file_id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, fileId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public int getTotalFileCount() {
+        String sql = "SELECT COUNT(*) FROM shared_files WHERE is_available = true";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public List<String> getDistinctBranches() {
+        List<String> branches = new ArrayList<>();
+        String sql = "SELECT DISTINCT branch FROM shared_files WHERE branch IS NOT NULL AND branch <> '' ORDER BY branch";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) branches.add(rs.getString(1));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return branches;
+    }
+
+    private SharedFile extractFileFromResultSet(ResultSet rs, boolean withUploader) throws SQLException {
         SharedFile file = new SharedFile();
         file.setFileId(rs.getInt("file_id"));
         file.setUserId(rs.getInt("user_id"));
@@ -326,14 +303,18 @@ public class FileDAO {
         file.setUploadDate(rs.getTimestamp("upload_date"));
         file.setDownloadCount(rs.getInt("download_count"));
         file.setDescription(rs.getString("description"));
+        file.setSubject(rs.getString("subject"));
+        file.setBranch(rs.getString("branch"));
+        file.setSemester(rs.getInt("semester"));
+        file.setMaterialType(rs.getString("material_type"));
+        file.setVerified(rs.getBoolean("is_verified"));
+        file.setUpvoteCount(rs.getInt("upvote_count"));
+        if (withUploader) {
+            try { file.setUploaderName(rs.getString("uploader")); } catch (SQLException ignore) {}
+        }
         return file;
     }
-    
-    /**
-     * Calculates chunk count based on file size
-     * @param fileSize File size in bytes
-     * @return Number of chunks
-     */
+
     public static int calculateChunkCount(long fileSize) {
         return (int) Math.ceil((double) fileSize / DEFAULT_CHUNK_SIZE);
     }

@@ -58,7 +58,16 @@ public class FileUploadServlet extends HttpServlet {
         try {
             Part filePart = request.getPart("file");
             String description = request.getParameter("description");
-            
+            String subject = request.getParameter("subject");
+            String branch = request.getParameter("branch");
+            String semStr = request.getParameter("semester");
+            String materialType = request.getParameter("materialType");
+
+            int semester = 0;
+            if (semStr != null && !semStr.trim().isEmpty()) {
+                try { semester = Integer.parseInt(semStr.trim()); } catch (NumberFormatException ignored) {}
+            }
+
             if (filePart == null || filePart.getSize() == 0) {
                 request.setAttribute("error", "Please select a file to upload");
                 request.getRequestDispatcher("/WEB-INF/views/upload.jsp").forward(request, response);
@@ -108,6 +117,11 @@ public class FileUploadServlet extends HttpServlet {
             sharedFile.setChunkCount(chunkCount);
             sharedFile.setChunkSize(chunkSize);
             sharedFile.setDescription(description != null ? description : "");
+            sharedFile.setSubject(subject != null ? subject.trim() : "");
+            sharedFile.setBranch(branch != null ? branch.trim() : "");
+            sharedFile.setSemester(semester);
+            sharedFile.setMaterialType(materialType != null && !materialType.trim().isEmpty()
+                ? materialType.trim().toLowerCase() : SharedFile.TYPE_NOTES);
             sharedFile.setAvailable(true);
             
             // Save to database
